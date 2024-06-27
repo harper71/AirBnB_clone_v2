@@ -49,9 +49,10 @@ class BaseModel:
         dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
         if '_sa_instance_state' in dictionary:
-            del dictionary['_sa_instance_state']
+            dictionary.pop('_sa_instance_state')
+
         return dictionary
     def delete(self):
         """deletes the filestorage class"""
-        from models import  storage
+        from models import storage
         storage.delete(self)

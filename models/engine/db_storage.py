@@ -30,23 +30,33 @@ class DBStorage:
         
     def all(self, cls=None):
         """Add the object to the database session (self.__session)"""
+        obj_list = []
 
-        objects = {}
         if cls:
-            for object in self.__session.query(cls).all():
-                key = f'{cls.__name__}.{object.id}'
-            objects[key] = object
-        else:
-            for cls_name in Base._decl_class_registry.values():
-                if isinstance(cls_name, type):
-                    for obj in self.__session.query(cls_name).all():
-                        key = f'{object.__class__.__name__}.{object.id}'
-                        objects[key] = object
-        return objects
+            if isinstance(cls, str):
+                try:
+                    cls = globals()[cls]
+                except KeyError:
+                    pass
+            if issubclass(cls, Base):
+                obj_list = self.__session.query(cls).all()
+            else:
+                for subclass in Base.__subclasses__():
+                    obj_list.extend(self.__session.query(subclass).all())
+            objects = {}
+
+            for obj in obj_list:
+                key = f"{obj.__class__.__name__}.{obj.id}"
+                try:
+                    del obj._sa_instance_state
+                except Exception:
+                    pass
+                objects[key] =obj
+            return objects
 
     def new(self, obj):
         """adds the object to the current database session """
-        self.__session.all(obj)
+        self.__session.add(obj)
     
     def save(self):
         """commit all changes of the current database"""
@@ -59,13 +69,6 @@ class DBStorage:
 
     def reload(self):
         """Create all tables in the database and create the current database session"""
-        from models.base_model import BaseModel
-        from models.user import User
-        from models.place import Place
-        from models.state import State
-        from models.city import City
-        from models.amenity import Amenity
-        from models.review import Review
 
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(
