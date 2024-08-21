@@ -39,12 +39,10 @@ def display2(text=None):
     return f"Python {formatted_text}"
 
 
-@app.route('/number/<n>', strict_slashes=False)
-def id_render(n=int):
+@app.route('/number/<int:n>', strict_slashes=False)
+def id_render(n):
     """display number if its an integer"""
-
-    if isinstance(n, int):
-        return f"{n} is a number"
+    return f"{n} is a number"
 
 
 if __name__ == "__main__":
