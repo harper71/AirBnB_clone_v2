@@ -2,7 +2,7 @@
 """displays hello HBNB and "HBNB"to your localhost
 using flask
 """
-from flask import Flask
+from flask import Flask, render_template
 
 
 app = Flask(__name__)
@@ -45,5 +45,11 @@ def id_render(n):
     return f"{n} is a number"
 
 
+@app.route('/number_template/<int:n>', strict_slashes=False)
+def show_render(n):
+    """show template of n"""
+    return render_template("5-number.html", n=n)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=None)
+    app.run(host="0.0.0.0", port=5000, debug=True)
